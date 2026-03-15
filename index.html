@@ -7,29 +7,30 @@
     <style>
         body { margin: 0; background: #000; overflow: hidden; touch-action: none; font-family: 'Orbitron', sans-serif; }
         #overlay { position: absolute; width: 100%; height: 100%; background: linear-gradient(#1e3c72, #2a5298); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; color: white; text-align: center; }
-        .input-box { padding: 12px; margin: 10px; width: 250px; border: none; border-radius: 8px; text-align: center; }
-        .jet-card { padding: 15px; margin: 8px; background: rgba(255,255,255,0.2); border: 2px solid white; width: 280px; border-radius: 15px; cursor: pointer; font-weight: bold; color: white; }
-        #hud { position: absolute; top: 15px; left: 15px; color: #4efd54; display: none; background: rgba(0,0,0,0.7); padding: 15px; border-radius: 10px; z-index: 10; border: 1px solid white; }
+        .input-box { padding: 12px; margin: 10px; width: 250px; border: none; border-radius: 8px; text-align: center; font-family: 'Orbitron'; }
+        .jet-card { padding: 15px; margin: 8px; background: rgba(255,255,255,0.2); border: 2px solid white; width: 280px; border-radius: 15px; cursor: pointer; font-weight: bold; color: white; transition: 0.3s; }
+        .jet-card:hover { background: white; color: black; }
+        #hud { position: absolute; top: 15px; left: 15px; color: #4efd54; display: none; background: rgba(0,0,0,0.7); padding: 15px; border-radius: 10px; z-index: 10; border: 1px solid rgba(255,255,255,0.3); }
         #controls { position: absolute; bottom: 30px; width: 100%; display: none; justify-content: space-around; z-index: 20; }
-        .btn { width: 80px; height: 80px; background: rgba(255,255,255,0.2); border: 2px solid white; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; }
-        #fire-btn { background: rgba(255, 0, 0, 0.6); border-color: red; width: 100px; height: 100px; font-size: 20px; }
+        .btn { width: 80px; height: 80px; background: rgba(255,255,255,0.2); border: 2px solid white; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; -webkit-user-select: none; }
+        #fire-btn { background: rgba(255, 0, 0, 0.6); border-color: #ff4d4d; width: 110px; height: 110px; font-size: 22px; color: white; box-shadow: 0 0 20px red; }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
 </head>
 <body>
 
 <div id="overlay">
-    <h1 style="font-size: 35px; margin: 0;">FJ STRIKE: NATURE</h1>
-    <p>Pilot: <b>Radwan-Islam-Alif</b></p>
+    <h1 style="font-size: 35px; margin: 0; letter-spacing: 5px;">FJ STRIKE: NATURE</h1>
+    <p>Developed by <b>Radwan-Islam-Alif</b></p>
     <input type="text" id="playerName" placeholder="Enter Your Name" class="input-box">
-    <div class="jet-card" onclick="startCombat(0x555555, 'F-22 RAPTOR')">🚀 F-22 RAPTOR</div>
-    <div class="jet-card" onclick="startCombat(0x333333, 'SU-57 FELON')">🛡️ SU-57 FELON</div>
-    <p style="font-size: 12px;">Select Jet to Start Mission</p>
+    <div class="jet-card" onclick="startCombat(0x555555, 'F-22 RAPTOR')">🚀 F-22 RAPTOR (Stealth)</div>
+    <div class="jet-card" onclick="startCombat(0x333333, 'SU-57 FELON')">🛡️ SU-57 FELON (Agile)</div>
+    <p style="font-size: 10px; margin-top: 15px;">SELECT JET TO LAUNCH MISSION</p>
 </div>
 
 <div id="hud">
-    <b id="pName">PILOT: RADWAN</b><br>
-    ALT: <span id="alt">0</span>m | BOSS: <span id="bossHealth">100</span>%
+    <b id="pNameDisp">PILOT: RADWAN</b><br>
+    ALT: <span id="alt">0</span>m | BOSS HP: <span id="bossHealth">100</span>
 </div>
 
 <div id="controls">
@@ -46,76 +47,77 @@
     let boss, bossHP = 100;
 
     function startCombat(color, name) {
-        if(!document.getElementById('playerName').value) { alert("Name please!"); return; }
+        if(!document.getElementById('playerName').value) { alert("Please enter your name!"); return; }
         document.getElementById('overlay').style.display = 'none';
         document.getElementById('hud').style.display = 'block';
         document.getElementById('controls').style.display = 'flex';
-        document.getElementById('pName').innerText = "PILOT: " + document.getElementById('playerName').value.toUpperCase();
+        document.getElementById('pNameDisp').innerText = "PILOT: " + document.getElementById('playerName').value.toUpperCase();
         initWorld(color);
     }
 
     function initWorld(jColor) {
         scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x87ceeb); // Akash Nil
-        scene.fog = new THREE.Fog(0x87ceeb, 20, 300);
+        scene.background = new THREE.Color(0x87ceeb); 
+        scene.fog = new THREE.Fog(0x87ceeb, 20, 400);
 
-        camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1500);
         renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
         const sun = new THREE.DirectionalLight(0xffffff, 1.2);
-        sun.position.set(10, 50, 10);
-        scene.add(sun, new THREE.AmbientLight(0x606060));
+        sun.position.set(50, 100, 50);
+        scene.add(sun, new THREE.AmbientLight(0x707070));
 
-        // --- Pahar & Prakritik Poribesh (Hills) ---
-        for(let i=0; i<40; i++) {
-            let hillGeo = new THREE.ConeGeometry(15 + Math.random()*10, 30 + Math.random()*20, 4);
-            let hillMat = new THREE.MeshStandardMaterial({color: 0x2d5a27}); // Deep Green
+        // --- Pahar & Nature ---
+        for(let i=0; i<60; i++) {
+            let hH = 20 + Math.random()*40;
+            let hillGeo = new THREE.ConeGeometry(15 + Math.random()*15, hH, 6);
+            let hillMat = new THREE.MeshStandardMaterial({color: 0x228b22}); // Forest Green
             let hill = new THREE.Mesh(hillGeo, hillMat);
-            hill.position.set(Math.random()*400-200, 10, -i*50);
+            hill.position.set(Math.random()*600-300, hH/2, -i*60);
             scene.add(hill);
         }
 
-        const ground = new THREE.Mesh(new THREE.PlaneGeometry(2000, 5000), new THREE.MeshStandardMaterial({color: 0x3d7a37}));
+        const ground = new THREE.Mesh(new THREE.PlaneGeometry(2000, 10000), new THREE.MeshStandardMaterial({color: 0x1a4a16}));
         ground.rotation.x = -Math.PI/2;
         scene.add(ground);
 
-        // --- Pro Fighter Jet ---
+        // --- Realistic Jet Model ---
         playerJet = new THREE.Group();
-        const body = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.4, 3, 8), new THREE.MeshStandardMaterial({color: jColor}));
+        const body = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.4, 3, 8), new THREE.MeshStandardMaterial({color: jColor}));
         body.rotation.x = Math.PI/2;
-        const wing = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.05, 1), new THREE.MeshStandardMaterial({color: jColor}));
-        const tail = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.8, 0.5), new THREE.MeshStandardMaterial({color: jColor}));
-        tail.position.set(0, 0.4, 1.2);
-        playerJet.add(body, wing, tail);
-        playerJet.position.y = 25;
+        const wings = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.05, 1.2), new THREE.MeshStandardMaterial({color: jColor}));
+        const tail = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.8, 0.6), new THREE.MeshStandardMaterial({color: jColor}));
+        tail.position.set(0, 0.5, 1.2);
+        playerJet.add(body, wings, tail);
+        playerJet.position.y = 30;
         scene.add(playerJet);
 
-        // --- Boss ---
-        boss = new THREE.Mesh(new THREE.BoxGeometry(10, 3, 15), new THREE.MeshStandardMaterial({color: 0xcc0000}));
-        boss.position.set(0, 30, -250);
+        // --- Boss Enemy ---
+        const bGeo = new THREE.BoxGeometry(15, 4, 25);
+        const bMat = new THREE.MeshStandardMaterial({color: 0xff0000});
+        boss = new THREE.Mesh(bGeo, bMat);
+        boss.position.set(0, 35, -300);
         scene.add(boss);
 
         gameActive = true;
         animate();
     }
 
-    // Fire Button Logic (Fixed)
-    document.getElementById('fire-btn').addEventListener('touchstart', function(e) {
-        e.preventDefault();
-        shootMissile();
-    });
-    document.getElementById('fire-btn').addEventListener('click', shootMissile);
-
-    function shootMissile() {
+    // FIRE ACTION (Direct Touch Fix)
+    const fBtn = document.getElementById('fire-btn');
+    const shoot = () => {
         if(!gameActive) return;
-        const m = new THREE.Mesh(new THREE.SphereGeometry(0.3), new THREE.MeshBasicMaterial({color: 0xffff00}));
+        const m = new THREE.Mesh(new THREE.SphereGeometry(0.4), new THREE.MeshBasicMaterial({color: 0xff0000}));
         m.position.copy(playerJet.position);
         scene.add(m);
         missiles.push(m);
-    }
+    };
+    fBtn.addEventListener('touchstart', (e) => { e.preventDefault(); shoot(); });
+    fBtn.addEventListener('mousedown', (e) => { e.preventDefault(); shoot(); });
 
+    // Move Controls
     document.getElementById('up-btn').ontouchstart = (e) => { e.preventDefault(); moveUp = true; };
     document.getElementById('up-btn').ontouchend = () => moveUp = false;
     document.getElementById('down-btn').ontouchstart = (e) => { e.preventDefault(); moveDown = true; };
@@ -125,29 +127,28 @@
         if(!gameActive) return;
         requestAnimationFrame(animate);
 
-        playerJet.position.z -= 0.8; 
-        if(moveUp) playerJet.position.y += 0.3;
-        if(moveDown && playerJet.position.y > 5) playerJet.position.y -= 0.3;
+        playerJet.position.z -= 0.9; 
+        if(moveUp) playerJet.position.y += 0.35;
+        if(moveDown && playerJet.position.y > 5) playerJet.position.y -= 0.35;
 
-        boss.position.z -= 0.7; // Boss pichone thakbe
+        boss.position.z -= 0.8; // Boss pichone thakbe
 
         missiles.forEach((m, i) => {
-            m.position.z -= 5; // Missile speed
-            if(m.position.distanceTo(boss.position) < 15) {
-                bossHP -= 5;
+            m.position.z -= 6;
+            if(m.position.distanceTo(boss.position) < 20) {
+                bossHP -= 4;
                 document.getElementById('bossHealth').innerText = bossHP;
                 scene.remove(m); missiles.splice(i, 1);
-                if(bossHP <= 0) { alert("VICTORY! BOSS DOWN!"); location.reload(); }
+                if(bossHP <= 0) { alert("VICTORY! BOSS DESTROYED!"); location.reload(); }
             }
-            if(m.position.z < playerJet.position.z - 300) { scene.remove(m); missiles.splice(i, 1); }
+            if(m.position.z < playerJet.position.z - 400) { scene.remove(m); missiles.splice(i, 1); }
         });
 
-        camera.position.set(playerJet.position.x, playerJet.position.y + 3, playerJet.position.z + 10);
+        camera.position.set(playerJet.position.x, playerJet.position.y + 3.5, playerJet.position.z + 12);
         camera.lookAt(playerJet.position);
         document.getElementById('alt').innerText = Math.floor(playerJet.position.y * 10);
         renderer.render(scene, camera);
     }
 </script>
 </body>
-    </html>
-    
+</html>
