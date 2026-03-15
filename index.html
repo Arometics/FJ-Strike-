@@ -3,43 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FJ STRIKE: ULTIMATE - Radwan</title>
+    <title>FJ STRIKE: REAL WORLD - Radwan</title>
     <style>
         body { margin: 0; background: #000; overflow: hidden; touch-action: none; font-family: 'Orbitron', sans-serif; }
-        #overlay { position: absolute; width: 100%; height: 100%; background: radial-gradient(circle, #1a1a2e, #000); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; color: #4efd54; text-align: center; }
-        .input-box { padding: 12px; margin: 10px; width: 250px; border: 2px solid #4efd54; background: #111; color: #4efd54; text-align: center; border-radius: 8px; font-family: 'Orbitron'; }
-        .jet-card { padding: 15px; margin: 8px; background: rgba(255,255,255,0.05); border: 1px solid #4efd54; width: 280px; border-radius: 15px; cursor: pointer; font-weight: bold; color: #4efd54; }
-        .jet-card:hover { background: #4efd54; color: black; }
-        #hud { position: absolute; top: 15px; left: 15px; color: #4efd54; display: none; background: rgba(0,0,0,0.7); padding: 15px; border-radius: 10px; border-left: 5px solid #4efd54; z-index: 10; font-size: 12px; }
+        #overlay { position: absolute; width: 100%; height: 100%; background: linear-gradient(#1e3c72, #2a5298); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; color: white; text-align: center; }
+        .input-box { padding: 12px; margin: 10px; width: 250px; border: none; border-radius: 8px; text-align: center; }
+        .jet-card { padding: 15px; margin: 8px; background: rgba(255,255,255,0.2); border: 2px solid white; width: 280px; border-radius: 15px; cursor: pointer; font-weight: bold; color: white; }
+        #hud { position: absolute; top: 15px; left: 15px; color: #4efd54; display: none; background: rgba(0,0,0,0.7); padding: 15px; border-radius: 10px; z-index: 10; border: 1px solid white; }
         #controls { position: absolute; bottom: 30px; width: 100%; display: none; justify-content: space-around; z-index: 20; }
-        .btn { width: 85px; height: 85px; background: rgba(255,255,255,0.1); border: 2px solid white; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        #fire-btn { background: rgba(255, 0, 0, 0.4); border-color: #ff4d4d; color: #ff4d4d; width: 100px; height: 100px; font-size: 18px; }
-        #voice-id-display { color: yellow; font-size: 10px; margin-top: 5px; }
+        .btn { width: 80px; height: 80px; background: rgba(255,255,255,0.2); border: 2px solid white; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; }
+        #fire-btn { background: rgba(255, 0, 0, 0.6); border-color: red; width: 100px; height: 100px; font-size: 20px; }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
 </head>
 <body>
 
 <div id="overlay">
-    <h1 style="font-size: 35px; margin: 0; letter-spacing: 5px;">FJ STRIKE: ELITE</h1>
-    <p style="color: #fff;">Pilot: <b>Radwan-Islam-Alif</b></p>
-    
-    <input type="text" id="playerName" placeholder="Your Callsign (Name)" class="input-box">
-    <input type="text" id="friendId" placeholder="Friend's Voice ID (Optional)" class="input-box">
-    
-    <div style="display: flex; flex-wrap: wrap; justify-content: center;">
-        <div class="jet-card" onclick="startCombat(0x808080, 'F-22 RAPTOR')">🚀 F-22 RAPTOR</div>
-        <div class="jet-card" onclick="startCombat(0x444444, 'SU-57 FELON')">🛡️ SU-57 FELON</div>
-        <div class="jet-card" onclick="startCombat(0x2d3436, 'J-20 DRAGON')">🔥 J-20 DRAGON</div>
-    </div>
-    <p id="my-id-text" style="color: #888; font-size: 12px; margin-top: 10px;">Connecting to Voice Server...</p>
+    <h1 style="font-size: 35px; margin: 0;">FJ STRIKE: NATURE</h1>
+    <p>Pilot: <b>Radwan-Islam-Alif</b></p>
+    <input type="text" id="playerName" placeholder="Enter Your Name" class="input-box">
+    <div class="jet-card" onclick="startCombat(0x555555, 'F-22 RAPTOR')">🚀 F-22 RAPTOR</div>
+    <div class="jet-card" onclick="startCombat(0x333333, 'SU-57 FELON')">🛡️ SU-57 FELON</div>
+    <p style="font-size: 12px;">Select Jet to Start Mission</p>
 </div>
 
 <div id="hud">
-    <b id="pilotNameDisp">PILOT: RADWAN</b><br>
-    ALT: <span id="alt">0</span>m | BOSS HP: <span id="bossHealth">100</span><br>
-    VOICE: <span id="v-stat" style="color:red;">OFF</span>
+    <b id="pName">PILOT: RADWAN</b><br>
+    ALT: <span id="alt">0</span>m | BOSS: <span id="bossHealth">100</span>%
 </div>
 
 <div id="controls">
@@ -53,127 +43,103 @@
 <script>
     let scene, camera, renderer, playerJet, gameActive = false;
     let moveUp = false, moveDown = false, missiles = [];
-    let boss, bossActive = false, bossHP = 100;
-    let peer, myPeerId;
+    let boss, bossHP = 100;
 
-    // --- Voice Multiplayer Setup ---
-    peer = new Peer();
-    peer.on('open', (id) => {
-        myPeerId = id;
-        document.getElementById('my-id-text').innerText = "YOUR VOICE ID: " + id;
-    });
-
-    peer.on('call', (call) => {
-        navigator.mediaDevices.getUserMedia({audio: true}).then(stream => {
-            call.answer(stream);
-            call.on('stream', remoteStream => {
-                let audio = new Audio(); audio.srcObject = remoteStream; audio.play();
-                document.getElementById('v-stat').innerText = "LIVE 🎙️";
-                document.getElementById('v-stat').style.color = "lime";
-            });
-        });
-    });
-
-    function startCombat(jetColor, jetName) {
-        let name = document.getElementById('playerName').value;
-        let fId = document.getElementById('friendId').value;
-        if(!name) { alert("Enter your name!"); return; }
-
+    function startCombat(color, name) {
+        if(!document.getElementById('playerName').value) { alert("Name please!"); return; }
         document.getElementById('overlay').style.display = 'none';
         document.getElementById('hud').style.display = 'block';
         document.getElementById('controls').style.display = 'flex';
-        document.getElementById('pilotNameDisp').innerText = "PILOT: " + name.toUpperCase();
-        
-        // Connect to friend's voice if ID provided
-        if(fId) {
-            navigator.mediaDevices.getUserMedia({audio: true}).then(stream => {
-                let call = peer.call(fId, stream);
-                call.on('stream', remoteStream => {
-                    let audio = new Audio(); audio.srcObject = remoteStream; audio.play();
-                    document.getElementById('v-stat').innerText = "LIVE 🎙️";
-                    document.getElementById('v-stat').style.color = "lime";
-                });
-            });
-        }
-
-        initGame(jetColor);
+        document.getElementById('pName').innerText = "PILOT: " + document.getElementById('playerName').value.toUpperCase();
+        initWorld(color);
     }
 
-    function initGame(jColor) {
+    function initWorld(jColor) {
         scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x050510); 
+        scene.background = new THREE.Color(0x87ceeb); // Akash Nil
+        scene.fog = new THREE.Fog(0x87ceeb, 20, 300);
+
         camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
         renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
-        const light = new THREE.DirectionalLight(0xffffff, 1);
-        light.position.set(5, 10, 7);
-        scene.add(light, new THREE.AmbientLight(0x333333));
+        const sun = new THREE.DirectionalLight(0xffffff, 1.2);
+        sun.position.set(10, 50, 10);
+        scene.add(sun, new THREE.AmbientLight(0x606060));
 
-        // Player Fighter Jet Model
+        // --- Pahar & Prakritik Poribesh (Hills) ---
+        for(let i=0; i<40; i++) {
+            let hillGeo = new THREE.ConeGeometry(15 + Math.random()*10, 30 + Math.random()*20, 4);
+            let hillMat = new THREE.MeshStandardMaterial({color: 0x2d5a27}); // Deep Green
+            let hill = new THREE.Mesh(hillGeo, hillMat);
+            hill.position.set(Math.random()*400-200, 10, -i*50);
+            scene.add(hill);
+        }
+
+        const ground = new THREE.Mesh(new THREE.PlaneGeometry(2000, 5000), new THREE.MeshStandardMaterial({color: 0x3d7a37}));
+        ground.rotation.x = -Math.PI/2;
+        scene.add(ground);
+
+        // --- Pro Fighter Jet ---
         playerJet = new THREE.Group();
-        const body = new THREE.Mesh(new THREE.ConeGeometry(0.3, 2.5, 8), new THREE.MeshStandardMaterial({color: jColor}));
-        body.rotation.x = Math.PI / 2;
-        const wings = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.05, 1), new THREE.MeshStandardMaterial({color: jColor}));
-        wings.position.z = 0.3;
-        const tail = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.5, 0.5), new THREE.MeshStandardMaterial({color: jColor}));
-        tail.position.set(0, 0.3, 1);
-        playerJet.add(body, wings, tail);
-        playerJet.position.y = 20;
+        const body = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.4, 3, 8), new THREE.MeshStandardMaterial({color: jColor}));
+        body.rotation.x = Math.PI/2;
+        const wing = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.05, 1), new THREE.MeshStandardMaterial({color: jColor}));
+        const tail = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.8, 0.5), new THREE.MeshStandardMaterial({color: jColor}));
+        tail.position.set(0, 0.4, 1.2);
+        playerJet.add(body, wing, tail);
+        playerJet.position.y = 25;
         scene.add(playerJet);
 
-        // Grid Terrain
-        const grid = new THREE.GridHelper(5000, 100, 0x4efd54, 0x111111);
-        scene.add(grid);
-
-        // Boss Enemy
-        const bossGeo = new THREE.BoxGeometry(12, 4, 20);
-        const bossMat = new THREE.MeshStandardMaterial({color: 0xff0000, emissive: 0x550000});
-        boss = new THREE.Mesh(bossGeo, bossMat);
-        boss.position.set(0, 25, -200);
+        // --- Boss ---
+        boss = new THREE.Mesh(new THREE.BoxGeometry(10, 3, 15), new THREE.MeshStandardMaterial({color: 0xcc0000}));
+        boss.position.set(0, 30, -250);
         scene.add(boss);
-        bossActive = true;
 
         gameActive = true;
         animate();
     }
 
-    // Controls
+    // Fire Button Logic (Fixed)
+    document.getElementById('fire-btn').addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        shootMissile();
+    });
+    document.getElementById('fire-btn').addEventListener('click', shootMissile);
+
+    function shootMissile() {
+        if(!gameActive) return;
+        const m = new THREE.Mesh(new THREE.SphereGeometry(0.3), new THREE.MeshBasicMaterial({color: 0xffff00}));
+        m.position.copy(playerJet.position);
+        scene.add(m);
+        missiles.push(m);
+    }
+
     document.getElementById('up-btn').ontouchstart = (e) => { e.preventDefault(); moveUp = true; };
     document.getElementById('up-btn').ontouchend = () => moveUp = false;
     document.getElementById('down-btn').ontouchstart = (e) => { e.preventDefault(); moveDown = true; };
     document.getElementById('down-btn').ontouchend = () => moveDown = false;
-    document.getElementById('fire-btn').onclick = () => {
-        const m = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1), new THREE.MeshBasicMaterial({color: 0xff0000}));
-        m.rotation.x = Math.PI / 2;
-        m.position.copy(playerJet.position);
-        scene.add(m);
-        missiles.push(m);
-    };
 
     function animate() {
         if(!gameActive) return;
         requestAnimationFrame(animate);
 
-        playerJet.position.z -= 0.7;
-        if(moveUp) playerJet.position.y += 0.35;
-        if(moveDown && playerJet.position.y > 2) playerJet.position.y -= 0.35;
+        playerJet.position.z -= 0.8; 
+        if(moveUp) playerJet.position.y += 0.3;
+        if(moveDown && playerJet.position.y > 5) playerJet.position.y -= 0.3;
 
-        if(bossActive) {
-            boss.position.z -= 0.65;
-            boss.position.x = Math.sin(Date.now() * 0.001) * 20; // Boss moves side to side
-        }
+        boss.position.z -= 0.7; // Boss pichone thakbe
 
         missiles.forEach((m, i) => {
-            m.position.z -= 4;
-            if(bossActive && m.position.distanceTo(boss.position) < 15) {
-                bossHP -= 2;
+            m.position.z -= 5; // Missile speed
+            if(m.position.distanceTo(boss.position) < 15) {
+                bossHP -= 5;
                 document.getElementById('bossHealth').innerText = bossHP;
                 scene.remove(m); missiles.splice(i, 1);
-                if(bossHP <= 0) { scene.remove(boss); bossActive = false; alert("BOSS DESTROYED! VICTORY!"); }
+                if(bossHP <= 0) { alert("VICTORY! BOSS DOWN!"); location.reload(); }
             }
-            if(m.position.z < playerJet.position.z - 400) { scene.remove(m); missiles.splice(i, 1); }
+            if(m.position.z < playerJet.position.z - 300) { scene.remove(m); missiles.splice(i, 1); }
         });
 
         camera.position.set(playerJet.position.x, playerJet.position.y + 3, playerJet.position.z + 10);
@@ -183,4 +149,5 @@
     }
 </script>
 </body>
-</html>
+    </html>
+    
