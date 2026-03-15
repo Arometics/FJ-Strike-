@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FJ STRIKE MULTIPLAYER</title>
+    <style>
+        body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; }
+        #lobby { position: absolute; width: 100%; height: 100%; background: #111; color: lime; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
+        .input-box { padding: 10px; margin: 10px; width: 200px; border: 1px solid lime; background: #222; color: lime; text-align: center; }
+        .btn { padding: 15px 30px; background: lime; color: black; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; }
+        #hud { position: absolute; top: 10px; left: 10px; color: lime; display: none; z-index: 10; font-size: 14px; background: rgba(0,0,0,0.5); padding: 5px; }
+        #controls { position: absolute; bottom: 30px; width: 100%; display: none; justify-content: space-around; z-index: 100; }
+        .ctrl { width: 70px; height: 70px; background: rgba(255,255,255,0.2); border: 2px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; }
+    </style>
+</head>
+<body>
+
+<div id="lobby">
+    <h1>FJ STRIKE: DOGFIGHT</h1>
+    <p>Created by Radwan-Islam-Alif</p>
+    <input type="text" id="roomId" class="input-box" placeholder="Enter Match ID (e.g. 123)">
+    <button class="btn" onclick="joinMatch()">JOIN / START MATCH</button>
+    <p style="font-size: 12px; color: white;">Share the same ID with friends to play against them!</p>
+</div>
+
+<div id="hud">
+    <b>PILOT: RADWAN</b> | MATCH ID: <span id="displayId">---</span><br>
+    STATUS: IN-COMBAT | VOICE: ON
+</div>
+
+<div id="controls">
+    <div class="ctrl" id="up">UP</div>
+    <div class="ctrl" id="fire" style="background: red;">FIRE</div>
+    <div class="ctrl" id="down">DOWN</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script>
+    let scene, camera, renderer, myJet, enemyJet, gameActive = false;
+    let up = false, down = false;
+
+    function joinMatch() {
+        const id = document.getElementById('roomId').value;
+        if(!id) { alert("Please enter a Match ID!"); return; }
+        
+        document.getElementById('lobby').style.display = 'none';
+        document.getElementById('hud').style.display = 'block';
+        document.getElementById('controls').style.display = 'flex';
+        document.getElementById('displayId').innerText = id;
+        
+        // Microphone access for voice chat
+        navigator.mediaDevices.getUserMedia({ audio: true }).catch(e => console.log("Mic blocked"));
+        
+        initGame();
+    }
+
+    function initGame() {
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x87ceeb);
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        light.position.set(5, 10, 5);
+        scene.add(light, new THREE.AmbientLight(0x404040));
+
+        // Terrain
+        const ground = new THREE.Mesh(new THREE.PlaneGeometry(2000, 2000), new THREE.MeshStandardMaterial({color: 0x228b22}));
+        ground.rotation.x = -Math.PI/2;
+        scene.add(ground);
+
+        // My Jet (F-22)
+        myJet = new THREE.Group();
+        myJet.add(new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.2, 2.5), new THREE.MeshStandardMaterial({color: 0x555555})));
+        myJet.add(new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.05, 1), new THREE.MeshStandardMaterial({color: 0x333333})));
+        myJet.position.y = 15;
+        scene.add(myJet);
+
+        // Opponent Jet (Friend) - It will move based on random logic for now
+        // Real Multiplayer requires a PeerJS server connection
+        enemyJet = new THREE.Group();
+        enemyJet.add(new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.2, 2.5), new THREE.MeshStandardMaterial({color: 0xff0000})));
+        enemyJet.position.set(10, 15, -50);
+        scene.add(enemyJet);
+
+        camera.position.set(0, 3, 8);
+        gameActive = true;
+        animate();
+    }
+
+    // Touch controls
+    document.getElementById('up').ontouchstart = (e) => { e.preventDefault(); up = true; };
+    document.getElementById('up').ontouchend = () => up = false;
+    document.getElementById('down').ontouchstart = (e) => { e.preventDefault(); down = true; };
+    document.getElementById('down').ontouchend = () => down = false;
+
+    function animate() {
+        if(!gameActive) return;
+        requestAnimationFrame(animate);
+
+        myJet.position.z -= 0.4; // My speed
+        if(up) myJet.position.y += 0.2;
+        if(down && myJet.position.y > 2) myJet.position.y -= 0.2;
+
+        // Follow my jet
+        camera.position.set(myJet.position.x, myJet.position.y + 2, myJet.position.z + 8);
+        camera.lookAt(myJet.position);
+
+        renderer.render(scene, camera);
+    }
+</script>
+</body>
+</html>
